@@ -36,7 +36,7 @@ import (
 //	@Tags			API
 //
 //	@Param			link		query	string	true	"Magnet/hash/link to torrent"
-//	@Param			index		query	string	false	"File index in torrent"
+//	@Param			index		query	string	false	"File index in torrent (-10 for auto-selection)"
 //	@Param			preload		query	string	false	"Should preload torrent"
 //	@Param			stat		query	string	false	"Get statistics from torrent"
 //	@Param			save		query	string	false	"Should save torrent"
@@ -46,6 +46,9 @@ import (
 //	@Param			title		query	string	false	"Set title of torrent"
 //	@Param			poster		query	string	false	"Set poster link of torrent"
 //	@Param			category	query	string	false	"Set category of torrent, used in web: movie, tv, music, other"
+//	@Param			season		query	string	false	"Season number for auto-selection (requires index=-10)"
+//	@Param			episode		query	string	false	"Episode number for auto-selection (requires index=-10)"
+//	@Param			filename	query	string	false	"Filename for auto-selection (requires index=-10)"
 //
 //	@Produce		application/octet-stream
 //	@Success		200	"Data returned according to query"
@@ -62,6 +65,9 @@ func stream(c *gin.Context) {
 	title := c.Query("title")
 	poster := c.Query("poster")
 	category := c.Query("category")
+	season := c.Query("season")
+	episode := c.Query("episode")
+	filename := c.Query("filename")
 
 	data := ""
 
@@ -86,6 +92,9 @@ func stream(c *gin.Context) {
 	title, _ = url.QueryUnescape(title)
 	poster, _ = url.QueryUnescape(poster)
 	category, _ = url.QueryUnescape(category)
+	season, _ = url.QueryUnescape(season)
+	episode, _ = url.QueryUnescape(episode)
+	filename, _ = url.QueryUnescape(filename)
 
 	spec, err := utils.ParseLink(link)
 	if err != nil {
@@ -133,6 +142,15 @@ func stream(c *gin.Context) {
 			index = ind
 		}
 	}
+	// Auto-select file if index is -10
+	if index == -10 {
+		st := tor.Status()
+		index = autoSelectFile(st.FileStats, filename, season, episode)
+		if index == -1 {
+			c.AbortWithError(http.StatusNotFound, errors.New("no suitable file found for auto-selection"))
+			return
+		}
+	}
 	if index == -1 && play { // if file index not set and play file exec
 		c.AbortWithError(http.StatusBadRequest, errors.New("\"index\" is empty or wrong"))
 		return
@@ -172,6 +190,9 @@ func streamNoAuth(c *gin.Context) {
 	_, m3u := c.GetQuery("m3u")
 	_, fromlast := c.GetQuery("fromlast")
 	_, play := c.GetQuery("play")
+	season := c.Query("season")
+	episode := c.Query("episode")
+	filename := c.Query("filename")
 
 	if link == "" {
 		c.AbortWithError(http.StatusBadRequest, errors.New("link should not be empty"))
@@ -231,6 +252,15 @@ func streamNoAuth(c *gin.Context) {
 		ind, err := strconv.Atoi(indexStr)
 		if err == nil {
 			index = ind
+		}
+	}
+	// Auto-select file if index is -10
+	if index == -10 {
+		st := tor.Status()
+		index = autoSelectFile(st.FileStats, filename, season, episode)
+		if index == -1 {
+			c.AbortWithError(http.StatusNotFound, errors.New("no suitable file found for auto-selection"))
+			return
 		}
 	}
 	if index == -1 && play { // if file index not set and play file exec

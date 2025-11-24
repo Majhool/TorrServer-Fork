@@ -168,10 +168,28 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "File index in torrent",
+                        "description": "File index in torrent (-10 for auto-selection)",
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Season number for auto-selection (requires id=-10)",
+                        "name": "season",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Episode number for auto-selection (requires id=-10)",
+                        "name": "episode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filename for auto-selection (requires id=-10)",
+                        "name": "filename",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -353,7 +371,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "File index in torrent",
+                        "description": "File index in torrent (-10 for auto-selection)",
                         "name": "index",
                         "in": "query"
                     },
@@ -409,6 +427,24 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Set category of torrent, used in web: movie, tv, music, other",
                         "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Season number for auto-selection (requires index=-10)",
+                        "name": "season",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Episode number for auto-selection (requires index=-10)",
+                        "name": "episode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filename for auto-selection (requires index=-10)",
+                        "name": "filename",
                         "in": "query"
                     }
                 ],

@@ -7,6 +7,7 @@ PLATFORMS=(
   'linux/arm5'
   'linux/386'
   'windows/amd64'
+  'windows/arm64'
   'windows/386'
   'darwin/amd64'
   'darwin/arm64'

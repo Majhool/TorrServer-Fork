@@ -20,7 +20,10 @@ import (
 //	@Tags			API
 //
 //	@Param			hash		path	string	true	"Torrent hash"
-//	@Param			id			path	string	true	"File index in torrent"
+//	@Param			id			path	string	true	"File index in torrent (-10 for auto-selection)"
+//	@Param			season		query	string	false	"Season number for auto-selection (requires id=-10)"
+//	@Param			episode		query	string	false	"Episode number for auto-selection (requires id=-10)"
+//	@Param			filename	query	string	false	"Filename for auto-selection (requires id=-10)"
 //
 //	@Produce		application/octet-stream
 //	@Success		200	"Torrent data"
@@ -28,6 +31,9 @@ import (
 func play(c *gin.Context) {
 	hash := c.Param("hash")
 	indexStr := c.Param("id")
+	season := c.Query("season")
+	episode := c.Query("episode")
+	filename := c.Query("filename")
 	notAuth := c.GetBool("auth_required") && c.GetString(gin.AuthUserKey) == ""
 
 	if hash == "" || indexStr == "" {
@@ -74,6 +80,15 @@ func play(c *gin.Context) {
 		ind, err := strconv.Atoi(indexStr)
 		if err == nil {
 			index = ind
+		}
+	}
+	// Auto-select file if index is -10
+	if index == -10 {
+		st := tor.Status()
+		index = autoSelectFile(st.FileStats, filename, season, episode)
+		if index == -1 {
+			c.AbortWithError(http.StatusNotFound, errors.New("no suitable file found for auto-selection"))
+			return
 		}
 	}
 	if index == -1 { // if file index not set and play file exec

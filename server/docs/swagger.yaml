@@ -415,10 +415,22 @@ paths:
         name: hash
         required: true
         type: string
-      - description: File index in torrent
+      - description: File index in torrent (-10 for auto-selection)
         in: path
         name: id
         required: true
+        type: string
+      - description: Season number for auto-selection (requires id=-10)
+        in: query
+        name: season
+        type: string
+      - description: Episode number for auto-selection (requires id=-10)
+        in: query
+        name: episode
+        type: string
+      - description: Filename for auto-selection (requires id=-10)
+        in: query
+        name: filename
         type: string
       produces:
       - application/octet-stream
@@ -536,7 +548,7 @@ paths:
         name: link
         required: true
         type: string
-      - description: File index in torrent
+      - description: File index in torrent (-10 for auto-selection)
         in: query
         name: index
         type: string
@@ -575,6 +587,18 @@ paths:
       - description: 'Set category of torrent, used in web: movie, tv, music, other'
         in: query
         name: category
+        type: string
+      - description: Season number for auto-selection (requires index=-10)
+        in: query
+        name: season
+        type: string
+      - description: Episode number for auto-selection (requires index=-10)
+        in: query
+        name: episode
+        type: string
+      - description: Filename for auto-selection (requires index=-10)
+        in: query
+        name: filename
         type: string
       produces:
       - application/octet-stream
